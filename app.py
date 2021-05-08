@@ -20,6 +20,7 @@ mongo = PyMongo(app)
 # function links visual representation of work to web app
 def index():
     mars = mongo.db.mars.find_one()
+    #print(mars)
     return render_template("index.html", mars=mars)
 
 # set up scraping route
@@ -37,6 +38,7 @@ def index():
 def scrape():
     mars = mongo.db.mars
     mars_data = scraping.scrape_all()
+    #print(mars_data)
     mars.update({}, mars_data, upsert=True)
     return redirect('/', code=302)
 

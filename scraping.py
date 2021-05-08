@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup as soup
 from webdriver_manager.chrome import ChromeDriverManager
 import pandas as pd
 import datetime as dt
+import requests
 
 def scrape_all():
     # set up the executable path
@@ -20,6 +21,7 @@ def scrape_all():
         "news_paragraph": news_paragraph,
         "featured_image": featured_image(browser),
         "facts": mars_facts(),
+        "mars_hemispheres" : mars_hemis(browser),
         "last_modified": dt.datetime.now()}
 
     # stop webdriver and return data
@@ -98,18 +100,50 @@ def mars_facts():
         # write the table to a df using pandas
         # set zero index to specify only pull the first table it encounters
         df = pd.read_html('https://galaxyfacts-mars.com')[0]
-
     except BaseException:
+        #print("Unable to collect mars facts")
         return None
 
     # assign columns to the dataframe
-    df.columns = ['description', 'Mars', 'Earth']
+    df.columns = ['Description', 'Mars', 'Earth']
 
     #set description column as the dataframe's index
-    df.set_index('description', inplace=True)
+    df.set_index('Description', inplace=True)
+
 
     # convert df back to html 
-    return df.to_html(classes="table table-striped")
+    return df.to_html()
+
+def mars_hemis(browser):
+    # 1. Use browser to visit the URL 
+    url = 'https://marshemispheres.com/'
+    browser.visit(url)
+
+    # 2. Create a list to hold the images and titles.
+    hemisphere_image_urls = []
+
+    for n in range(4):
+        browser.find_by_css('a.product-item h3')[n].click()
+        hemispheres = {}
+
+        html = browser.html
+        results = soup(html, 'html.parser')
+
+        try:
+            hemispheres['title'] = results.find('h2', class_='title').get_text()
+            downloads = results.find('div', class_='downloads')
+            pic_url = downloads.find('a').get('href')
+            hemispheres['img_url'] = str('https://marshemispheres.com/' + pic_url)
+            hemisphere_image_urls.append(hemispheres)
+
+        except BaseException:
+            return None
+        
+        browser.back()
+    
+    return hemisphere_image_urls
+
+
 
 # script is complete and ready for action
 if __name__ == "__main__":
