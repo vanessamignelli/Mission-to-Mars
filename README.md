@@ -8,3 +8,6 @@ Visual Studio Code, Jupyter Notebook, MongoDB, Flask
 
 ## Languages
 Python, HTML
+
+## Application Preview
+![mission_to_mars_app](https://github.com/vanessamignelli/Mission-to-Mars/blob/main/resources/mission_to_mars_app.png)
